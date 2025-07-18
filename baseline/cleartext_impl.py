@@ -6,8 +6,6 @@ For each test case
 • Computes a + b 
 • Writes the result to expected_XXX.txt for each test case (# baseline/expected.txt)
 
-Run once whenever you change the dataset.
-
 If the queries should be generated at random for each test, write the code to generate them here
 """
 import random
@@ -33,7 +31,7 @@ for test in test_cases:
     result = db + q
 
     # 3) write to expected.txt (overwrites if it already exists)
-    OUT_PATH = BASELINE_DIR / f"expected_{test}.txt"
+    OUT_PATH = DATASET_DIR / f"expected_{test}.txt"
     OUT_PATH.write_text(f"{result}\n", encoding="utf-8")
     print(f"[baseline] Wrote expected result to {OUT_PATH.relative_to(Path.cwd())}")
 

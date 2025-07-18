@@ -15,18 +15,20 @@ int main(int argc, char* argv[]){
 
     CryptoContext<DCRTPoly> cc;
 
-    if (!Serial::DeserializeFromFile("../io/cc.bin", cc,
+    if (!Serial::DeserializeFromFile("../io/public_keys/cc.bin", cc,
                                     SerType::BINARY)) {
-        throw std::runtime_error("Failed to get CryptoContext from ../io/cc.bin");
+        throw std::runtime_error("Failed to get CryptoContext from ../io/public_keys/cc.bin");
     }
 
   PrivateKey<DCRTPoly> sk;
-  if (!Serial::DeserializeFromFile("../io/sk.bin", sk,
+  if (!Serial::DeserializeFromFile("../io/secret_key/sk.bin", sk,
                                    SerType::BINARY)) {
-    throw std::runtime_error("Failed to get secret key from ../io/sk.bin");
+    throw std::runtime_error("Failed to get secret key from ../io/secret_key/sk.bin");
   }
     Ciphertext<DCRTPoly> ctxt;     
-    Serial::DeserializeFromFile("../io/cipher_sum.bin", ctxt, SerType::BINARY);
+    if (!Serial::DeserializeFromFile("../io/ciphertexts_download/cipher_sum.bin", ctxt, SerType::BINARY)) {
+      throw std::runtime_error("Failed to get ciphertext from ../io/ciphertexts_download/cipher_sum.bin");
+    }
 
     Plaintext ptxt; 
     cc->Decrypt(sk, ctxt, &ptxt);

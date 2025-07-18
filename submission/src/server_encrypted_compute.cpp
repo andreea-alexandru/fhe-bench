@@ -11,17 +11,19 @@ using namespace lbcrypto;
 int main(){
     CryptoContext<DCRTPoly> cc;
 
-    if (!Serial::DeserializeFromFile("../io/cc.bin", cc,
+    if (!Serial::DeserializeFromFile("../io/public_keys/cc.bin", cc,
                                     SerType::BINARY)) {
-        throw std::runtime_error("Failed to get CryptoContext from ../io/cc.bin");
+        throw std::runtime_error("Failed to get CryptoContext from ../io/public_keys/cc.bin");
     }
 
     Ciphertext<DCRTPoly> ctxt_db, ctxt_q;
-    Serial::DeserializeFromFile("../io/cipher_db.bin", ctxt_db, SerType::BINARY);
-    Serial::DeserializeFromFile("../io/cipher_q.bin", ctxt_q, SerType::BINARY);
+    if (!Serial::DeserializeFromFile("../io/ciphertexts_upload/cipher_db.bin", ctxt_db, SerType::BINARY) || 
+        !Serial::DeserializeFromFile("../io/ciphertexts_upload/cipher_q.bin", ctxt_q, SerType::BINARY)) {
+        throw std::runtime_error("Failed to get ciphertexts from ../io/ciphertexts_upload/");
+    }
 
     auto ctxtSum = cc->EvalAdd(ctxt_db, ctxt_q);
-    Serial::SerializeToFile("../io/cipher_sum.bin", ctxtSum, SerType::BINARY);
+    Serial::SerializeToFile("../io/ciphertexts_download/cipher_sum.bin", ctxtSum, SerType::BINARY);
 
     return 0;
 }

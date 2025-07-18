@@ -26,8 +26,8 @@ int main(int argc, char* argv[]){
     if (!(qry >> q))
         throw std::runtime_error("Failed to read double from " + query_path);
 
-    std::ofstream("../io/plain_db.bin", std::ios::binary).write((char*)&d, sizeof(double));
-    std::ofstream("../io/plain_q.bin", std::ios::binary).write((char*)&q, sizeof(double));
+    std::ofstream("../io/intermediate/plain_db.bin", std::ios::binary).write((char*)&d, sizeof(double));
+    std::ofstream("../io/intermediate/plain_q.bin", std::ios::binary).write((char*)&q, sizeof(double));
 
     return 0;
 }

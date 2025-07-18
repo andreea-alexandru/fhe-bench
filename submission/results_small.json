@@ -1,1 +1,18 @@
-{"latency_ms": 1020.675828000094, "bytes": 4070549}
+{
+  "total_latency_ms": 751.5689,
+  "per_stage_ms": {
+    "client_key_generation": 97.1555,
+    "client_preprocess": 60.4347,
+    "client_encode_encrypt_db": 95.3152,
+    "client_encode_encrypt_query": 122.9163,
+    "server_preprocess": 87.8883,
+    "server_encrypted_compute": 98.2669,
+    "client_decode_decrypt": 136.2006,
+    "client_postprocess": 53.3914
+  },
+  "bandwidth_bytes": {
+    "public_keys folder": 526130,
+    "ciphertexts_upload folder": 526666,
+    "ciphertexts_download folder": 263333
+  }
+}
