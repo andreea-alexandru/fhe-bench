@@ -43,3 +43,5 @@ third_party/
 
 # Datasets, queries and results since we generate them on the fly
 datasets/*
+# But keep the folder alive with this one file
+!datasets/.gitkeep

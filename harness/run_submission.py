@@ -19,6 +19,9 @@ build_dir= sub_dir/"build"
 
 # 0. Generate datasets and queries for all test cases and the expected results
 # Comment out the dataset generation after generating it once if desired.
+# (Instead of wiping out and always recreating the datasets folder at every run
+# to not have to regenerate the datasets if it is not desired, we keep it 
+# empty in github but don't drop it by using .gitkeep.)
 dataset_py = ROOT / "baseline" / "generate_dataset.py"
 subprocess.run(["python3", dataset_py], check=True)
 baseline_py = ROOT / "baseline" / "cleartext_impl.py"
