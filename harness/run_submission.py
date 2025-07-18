@@ -89,5 +89,6 @@ for test in test_cases:
         "bandwidth_bytes": bytes,
     }, open(sub_dir/f"results_{test}.json","w"), indent=2)
 
-    print("[total latency]", round(sum(timings.values()), 4), "ms\n[latency per stage]", timings, "ms\n",
+    print("[total latency]", round(sum(timings.values()), 4), "ms\n"
+          "[latency per stage]", timings, "ms\n"
           "[bandwidth per round]", bytes, "bytes")

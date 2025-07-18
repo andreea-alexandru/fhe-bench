@@ -42,4 +42,4 @@ third_party/
 .vscode
 
 # Datasets, queries and results since we generate them on the fly
-datasets/
+datasets/*

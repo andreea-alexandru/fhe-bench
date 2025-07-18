@@ -1,14 +1,14 @@
 {
-  "total_latency_ms": 613.6745,
+  "total_latency_ms": 600.9252,
   "per_stage_ms": {
-    "client_key_generation": 97.7481,
-    "client_preprocess": 101.3623,
-    "client_encode_encrypt_db": 83.0519,
-    "client_encode_encrypt_query": 77.7728,
-    "server_preprocess": 61.8216,
-    "server_encrypted_compute": 36.7007,
-    "client_decode_decrypt": 95.5654,
-    "client_postprocess": 59.6517
+    "client_key_generation": 64.7994,
+    "client_preprocess": 51.191,
+    "client_encode_encrypt_db": 84.6163,
+    "client_encode_encrypt_query": 90.9649,
+    "server_preprocess": 63.9062,
+    "server_encrypted_compute": 119.8482,
+    "client_decode_decrypt": 79.6165,
+    "client_postprocess": 45.9827
   },
   "bandwidth_bytes": {
     "public_keys folder": 526130,
