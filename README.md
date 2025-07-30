@@ -1,3 +1,5 @@
+# FHE Benchmarking template
+
 ## Running the "add two numbers" workload
 
 ```console
@@ -92,39 +94,42 @@ Consolidate compiler generated dependencies of target client_encode_encrypt_quer
 All steps completed for the medium dataset!
 ```
 
-Directory structure: each submission to the workload in the FHE benchmarking 
-is a branch of the repository, with (a subset of) the following directory structure:
+## Directory structure
+
+```bash
+Each submission to the workload in the FHE benchmarking should have the following directory structure:
 [root] /
- ├─datasets/   # Holds cleartext data 
-   ├─ toy/     # each instance-size in in a separate subdirectory
-   ├─ small/
-   ├─ medium/
-   ├─ large/
- ├─docs/       # Documentation (beyond the top-level README.md)
- ├─harness/    # Scripts to generate data, run workload, check results
- ├─build/      # Handle installing dependencies and building the project
- ├─submission/ # The implementation, this is what the submitters modify
-   └─ README.md  # likely also a src/ subdirectory, CMakeLists.txt, etc.
- ├─io/         # Directory to hold the I/O between client & server parts
-   ├─ toy/       # The reference implementation has subdirectories
-      ├─ public_keys/       # holds the public evaluation keys
-      ├─ ciphertexts_download/  # holds the ciphertexts to be downloaded by the client
-      ├─ ciphertexts_upload/  # holds the ciphertexts to be uploaded by the client    
-      ├─ intermediate/  # internal information to be passed around the functions
-      └─ secret_key/  # holds the secret key
-   ├─ small/
-      …
-   ├─ medium/
-      …
-   ├─ large/
-      …
- ├─measurements/   # Holds json files with the results for each run
-   ├─ toy/     # each instance-size in in a separate subdirectory
-   ├─ small/
-   ├─ medium/
-   ├─ large/
+| ├─datasets/       # Holds cleartext data 
+| |  ├─ toy/        # each instance-size in in a separate subdirectory
+| |  ├─ small/
+| |  ├─ medium/
+| |  ├─ large/
+| ├─docs/           # Documentation (beyond the top-level README.md)
+| ├─harness/        # Scripts to generate data, run workload, check results
+| ├─build/          # Handle installing dependencies and building the project
+| ├─submission/     # The implementation, this is what the submitters modify
+| |  └─ README.md   # likely also a src/, include/ subdirectories, CMakeLists.txt, etc.
+| ├─io/             # Directory to hold the I/O between client & server parts
+| |  ├─ toy/        # The reference implementation has subdirectories
+| |     ├─ public_keys/             # holds the public evaluation keys
+| |     ├─ ciphertexts_download/    # holds the ciphertexts to be downloaded by the client
+| |     ├─ ciphertexts_upload/      # holds the ciphertexts (or other data except keys) to be uploaded by the client    
+| |     ├─ intermediate/            # internal information to be passed around the functions
+| |     └─ secret_key/              # holds the secret key
+| |  ├─ small/
+| |     …
+| |  ├─ medium/
+| |     …
+| |  ├─ large/
+| |     …
+| ├─measurements/   # Holds json files with the results for each run
+| |  ├─ toy/        # each instance-size in in a separate subdirectory
+| |  ├─ small/
+| |  ├─ medium/
+| |  ├─ large/
+```
 
-
+## Description of stages
 
 A submitter can edit any of the `client_*` / `server_*` sources in `/submission`. 
 Moreover, for the particular parameters related to a workload, the submitter can modify the params files.
@@ -137,17 +142,17 @@ database-dependent and run only once, and potentially multiple runs for multiple
 Each file can take as argument the test case size.
 
 
-| Stage executables         
-|---------------------------------
-| client_key_generation: Generate all key material and cryptographic context at the client.           
-| client_preprocess_dataset: (Optional) Any in the clear computations the client wants to apply over the dataset/model.
-| client_preprocess_query: (Optional) Any in the clear computations the client wants to apply over the query/input.
-| client_encode_encrypt_db: (Optional) Plaintext encoding and encryption of the dataset/model at the client.
-| client_encode_encrypt_query: Plaintext encoding and encryption of the query/input at the client.
-| server_preprocess_dataset: (Optional) Any in the clear or encrypted computations the server wants to apply over the dataset/model.
-| server_encrypted_compute: The computation the server applies to achieve the workload solution over encrypted daa.
-| client_decrypt_decode: Decryption and plaintext decoding of the result at the client.
-| client_postprocess: (Optional) Any in the clear computation that the client wants to apply on the decrypted result.
+| Stage executables                | Description |
+|----------------------------------|-------------|
+| `client_key_generation`          | Generate all key material and cryptographic context at the client.           
+| `client_preprocess_dataset`      | (Optional) Any in the clear computations the client wants to apply over the dataset/model.
+| `client_preprocess_query`        | (Optional) Any in the clear computations the client wants to apply over the query/input.
+| `client_encode_encrypt_db`       | (Optional) Plaintext encoding and encryption of the dataset/model at the client.
+| `client_encode_encrypt_query`    | Plaintext encoding and encryption of the query/input at the client.
+| `server_preprocess_dataset`      | (Optional) Any in the clear or encrypted computations the server wants to apply over the dataset/model.
+| `server_encrypted_compute`       | The computation the server applies to achieve the workload solution over encrypted daa.
+| `client_decrypt_decode`          | Decryption and plaintext decoding of the result at the client.
+| `client_postprocess`:            | Any in the clear computation that the client wants to apply on the decrypted result.
 
 
 The outer python script measures the runtime of each stage.
