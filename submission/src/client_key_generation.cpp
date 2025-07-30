@@ -4,10 +4,19 @@
 #include "cryptocontext-ser.h"
 #include "key/key-ser.h"
 #include "scheme/ckksrns/ckksrns-ser.h"
+#include "params.h"
 
 using namespace lbcrypto;
 
-int main(){
+int main(int argc, char* argv[]){
+
+    if (argc < 2 || !std::isdigit(argv[1][0])) {
+        std::cout << "Usage: " << argv[0] << " instance-size [--count_only]\n";
+        std::cout << "  Instance-size: 0-TOY, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
+        return 0;
+    }
+    auto size = static_cast<InstanceSize>(std::stoi(argv[1]));
+    InstanceParams prms(size);
 
     // Step 1: Setup CryptoContext
     uint32_t multDepth = 0;
@@ -25,14 +34,19 @@ int main(){
     auto keys = cc->KeyGen();
 
     // Step 3: Serialize cryptocontext and keys
-    if (!Serial::SerializeToFile("../io/public_keys/cc.bin", cc,
+    fs::create_directories(prms.pubkeydir());
+
+    if (!Serial::SerializeToFile(prms.pubkeydir()/"cc.bin", cc,
                                 SerType::BINARY) ||
-        !Serial::SerializeToFile("../io/public_keys/pk.bin",
-                                keys.publicKey, SerType::BINARY) ||
-        !Serial::SerializeToFile("../io/secret_key/sk.bin",
-                                keys.secretKey, SerType::BINARY)) {
-        throw std::runtime_error("Failed to write keys to ../io/");
+        !Serial::SerializeToFile(prms.pubkeydir()/"pk.bin",
+                                keys.publicKey, SerType::BINARY)) {
+        throw std::runtime_error("Failed to write keys to " + prms.pubkeydir().string());
     }
 
+    fs::create_directories(prms.seckeydir());
+    if (!Serial::SerializeToFile(prms.seckeydir()/"sk.bin",
+                                keys.secretKey, SerType::BINARY)) {
+        throw std::runtime_error("Failed to write keys to " + prms.seckeydir().string());
+    }
     return 0;
 }

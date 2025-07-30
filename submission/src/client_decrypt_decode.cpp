@@ -5,11 +5,12 @@
 #include "key/key-ser.h"
 #include "scheme/ckksrns/ckksrns-ser.h"
 #include "params.h"
+#include "iomanip"
+#include "limits"
 
 using namespace lbcrypto;
 
-int main(int argc, char* argv[]){
-
+int main(int argc, char* argv[]) {
     if (argc < 2 || !std::isdigit(argv[1][0])) {
         std::cout << "Usage: " << argv[0] << " instance-size [--count_only]\n";
         std::cout << "  Instance-size: 0-TOY, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
@@ -19,32 +20,28 @@ int main(int argc, char* argv[]){
     InstanceParams prms(size);
 
     CryptoContext<DCRTPoly> cc;
-
     if (!Serial::DeserializeFromFile(prms.pubkeydir()/"cc.bin", cc,
                                     SerType::BINARY)) {
         throw std::runtime_error("Failed to get CryptoContext from  " + prms.pubkeydir().string());
     }
-    PublicKey<DCRTPoly> pk;
-    if (!Serial::DeserializeFromFile(prms.pubkeydir()/"pk.bin", pk,
+    PrivateKey<DCRTPoly> sk;
+    if (!Serial::DeserializeFromFile(prms.seckeydir()/"sk.bin", sk,
                                     SerType::BINARY)) {
-        throw std::runtime_error("Failed to get public key from  " + prms.pubkeydir().string());
+        throw std::runtime_error("Failed to get secret key from  " + prms.seckeydir().string());
+    }
+    Ciphertext<DCRTPoly> ctxt;     
+    if (!Serial::DeserializeFromFile(prms.ctxtdowndir()/"cipher_sum.bin", ctxt, SerType::BINARY)) {
+      throw std::runtime_error("Failed to get ciphertext from " + prms.ctxtdowndir().string());
     }
 
-    std::string q_path = prms.intermdir()/"plain_q.bin";
-    std::ifstream in(q_path, std::ios::binary);
-    if (!in.is_open())
-        throw std::runtime_error("Cannot open " + q_path);
-    double x; 
-    in.read((char*)&x, sizeof(double));
-    if (!in)
-        throw std::runtime_error("Failed to read double from " + q_path);
+    Plaintext ptxt; 
+    cc->Decrypt(sk, ctxt, &ptxt);
+    ptxt->SetLength(1);
+    double res = ptxt->GetCKKSPackedValue()[0].real();
 
-    std::vector<double> q = {x};
-    auto ptxt = cc->MakeCKKSPackedPlaintext({q});
-    auto ctxt = cc->Encrypt(pk, ptxt);
-
-    fs::create_directories(prms.ctxtupdir());
-    Serial::SerializeToFile(prms.ctxtupdir()/"cipher_query.bin", ctxt, SerType::BINARY);
+    // No post-processing, so write in the result file.
+    std::ofstream out(prms.iodir() / "result.txt");
+    out << std::setprecision(std::numeric_limits<double>::max_digits10) << std::defaultfloat << res << '\n';
 
     return 0;
 }

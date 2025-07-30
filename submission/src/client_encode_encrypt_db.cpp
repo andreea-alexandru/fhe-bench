@@ -4,29 +4,47 @@
 #include "cryptocontext-ser.h"
 #include "key/key-ser.h"
 #include "scheme/ckksrns/ckksrns-ser.h"
+#include "params.h"
 
 using namespace lbcrypto;
 
-int main(){
+int main(int argc, char* argv[]){
+
+    if (argc < 2 || !std::isdigit(argv[1][0])) {
+        std::cout << "Usage: " << argv[0] << " instance-size [--count_only]\n";
+        std::cout << "  Instance-size: 0-TOY, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
+        return 0;
+    }
+    auto size = static_cast<InstanceSize>(std::stoi(argv[1]));
+    InstanceParams prms(size);
+
     CryptoContext<DCRTPoly> cc;
 
-    if (!Serial::DeserializeFromFile("../io/public_keys/cc.bin", cc,
+    if (!Serial::DeserializeFromFile(prms.pubkeydir()/"cc.bin", cc,
                                     SerType::BINARY)) {
-        throw std::runtime_error("Failed to get CryptoContext from ../io/public_keys/cc.bin");
+        throw std::runtime_error("Failed to get CryptoContext from  " + prms.pubkeydir().string());
     }
     PublicKey<DCRTPoly> pk;
-    if (!Serial::DeserializeFromFile("../io/public_keys/pk.bin", pk,
+    if (!Serial::DeserializeFromFile(prms.pubkeydir()/"pk.bin", pk,
                                     SerType::BINARY)) {
-        throw std::runtime_error("Failed to get public key from ../io/public_keys/pk.bin");
+        throw std::runtime_error("Failed to get public key from  " + prms.pubkeydir().string());
     }
 
+    std::string db_path = prms.intermdir()/"plain_db.bin";
+    std::ifstream in(db_path, std::ios::binary);
+    if (!in.is_open())
+        throw std::runtime_error("Cannot open " + db_path);
     double x; 
-    std::ifstream("../io/intermediate/plain_db.bin",std::ios::binary).read((char*)&x, sizeof(double));
+    in.read((char*)&x, sizeof(double));
+    if (!in)
+        throw std::runtime_error("Failed to read double from " + db_path);
+
     std::vector<double> db = {x};
     auto ptxt = cc->MakeCKKSPackedPlaintext({db});
     auto ctxt = cc->Encrypt(pk, ptxt);
 
-    Serial::SerializeToFile("../io/ciphertexts_upload/cipher_db.bin", ctxt, SerType::BINARY);
+    fs::create_directories(prms.ctxtupdir());
+    Serial::SerializeToFile(prms.ctxtupdir()/"cipher_db.bin", ctxt, SerType::BINARY);
 
     return 0;
 }

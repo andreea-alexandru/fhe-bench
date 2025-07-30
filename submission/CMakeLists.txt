@@ -62,25 +62,19 @@ endif()
 # --------------------------------------------------------------------
  
 add_executable( client_key_generation src/client_key_generation.cpp )
-# target_include_directories(client_key_generation PRIVATE include)
 
-add_executable( client_preprocess src/client_preprocess.cpp )
-# target_include_directories(client_preprocess PRIVATE include)
+add_executable( client_preprocess_dataset src/client_preprocess_dataset.cpp )
+
+add_executable( client_preprocess_query src/client_preprocess_query.cpp )
 
 add_executable( client_encode_encrypt_db src/client_encode_encrypt_db.cpp )
-# target_include_directories(client_encode_encrypt_db PRIVATE include)
 
 add_executable( client_encode_encrypt_query src/client_encode_encrypt_query.cpp )
-# target_include_directories(client_encode_encrypt_query PRIVATE include)
 
-add_executable( client_decode_decrypt src/client_decode_decrypt.cpp )
-# target_include_directories(client_decode_decrypt PRIVATE include)
+add_executable( client_decrypt_decode src/client_decrypt_decode.cpp )
 
 add_executable( client_postprocess src/client_postprocess.cpp )
-# target_include_directories(client_postprocess PRIVATE include)
 
-add_executable( server_preprocess src/server_preprocess.cpp )
-# target_include_directories(server_preprocess PRIVATE include)
+add_executable( server_preprocess_dataset src/server_preprocess_dataset.cpp )
 
 add_executable( server_encrypted_compute src/server_encrypted_compute.cpp )
-# target_include_directories(server_encrypted_compute PRIVATE include)

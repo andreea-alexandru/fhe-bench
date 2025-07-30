@@ -1,97 +1,139 @@
 #!/usr/bin/env python3
-import subprocess, pathlib, json, shutil, time, sys, os
+"""
+run_submission.py - run the entire submission process, from build to verify
+"""
 
-TASK_DIR = pathlib.Path(__file__).parents[0]          # .../harness
-ROOT     = TASK_DIR.parents[0]                        # repo root
-MEASURE_BIN = ROOT/"measure_io/io_size"
-MEASURE_SRC = ROOT/"measure_io/io_size.cpp"          
+# TODO: Add license and copyright
 
-# ---------- build io_size if missing (delete the executable to recompile) -------------------------------
-if not MEASURE_BIN.exists():
-    print("[run]  compiling measure_io/io_size …")
-    MEASURE_BIN.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["g++", "-std=c++17", "-O2", "-s",
-                    "-o", str(MEASURE_BIN), str(MEASURE_SRC)],
-                   check=True)
+import subprocess
+import pathlib
+import sys
+import numpy as np
+import utils
+from params import instance_name
 
-sub_dir  = pathlib.Path(sys.argv[1]).resolve()
-build_dir= sub_dir/"build"
-
-# 0. Generate datasets and queries for all test cases and the expected results
-# Comment out the dataset generation after generating it once if desired.
-# (Instead of wiping out and always recreating the datasets folder at every run
-# to not have to regenerate the datasets if it is not desired, we keep it 
-# empty in github but don't drop it by using .gitkeep.)
-dataset_py = ROOT / "baseline" / "generate_dataset.py"
-subprocess.run(["python3", dataset_py], check=True)
-baseline_py = ROOT / "baseline" / "cleartext_impl.py"
-subprocess.run(["python3", baseline_py], check=True)
-
-# 1. Build submission
-subprocess.run([ROOT/"scripts/build_task.sh", str(sub_dir)], check=True)
-
-# For each test case, run the submission overwriting the intermediate files
-test_cases = ["small", "medium", "large"]
-for test in test_cases:
-    print("\nTest case: ", test)
-
-    # 2. Wipe and recreate IO dir
-    io_dir   = TASK_DIR.parent/"io"
-
-    shutil.rmtree(io_dir, ignore_errors=True)
-    io_dir.mkdir()
-    (io_dir/"public_keys").mkdir()
-    (io_dir/"secret_key").mkdir()
-    (io_dir/"ciphertexts_upload").mkdir()
-    (io_dir/"ciphertexts_download").mkdir()
-    (io_dir/"intermediate").mkdir()
-
-    # 3. Run submission and measure latency
-    bin_dir = sub_dir / "build"
-    stage_args = {
-        "client_key_generation": [],
-        "client_preprocess": [test],
-        "client_encode_encrypt_db": [],
-        "client_encode_encrypt_query": [],
-        "server_preprocess": [],
-        "server_encrypted_compute": [],
-        "client_decode_decrypt": [test],
-        "client_postprocess": [],
-    }
-
-    timings = {}
-    for name, args in stage_args.items():
-        exe = bin_dir / name
-        if not exe.exists():
-            raise FileNotFoundError(f"Missing stage binary: {exe}")
-        
-        t0 = time.perf_counter()
-        subprocess.run([exe, *args], check=True, cwd=sub_dir)  # add test case arg if needed
-        t1 = time.perf_counter()
-
-        timings[name] = round((t1 - t0) * 1e3, 4)  # ms, 4 decimal digits
-
-    # 4. Correctness check via verify_result.py
-    exp = TASK_DIR.parent / "datasets" / f"expected_{test}.txt"
-    got = TASK_DIR.parent / "io" / f"result_{test}.txt"
-
-    res = subprocess.run(["python3", TASK_DIR/"verify_result.py", exp, got])
-    if res.returncode != 0:
-        raise RuntimeError("Verification failed; see message above")
-
-    # 5. Measure bandwidth
-    bytes = {}
-    bytes["public_keys folder"] = int(subprocess.check_output([MEASURE_BIN, "io/public_keys"],cwd=TASK_DIR.parent).decode())
-    bytes["ciphertexts_upload folder"] = int(subprocess.check_output([MEASURE_BIN, "io/ciphertexts_upload"],cwd=TASK_DIR.parent).decode())
-    bytes["ciphertexts_download folder"] = int(subprocess.check_output([MEASURE_BIN, "io/ciphertexts_download"],cwd=TASK_DIR.parent).decode())
+def main():
+    """
+    Run the entire submission process, from build to verify
+    """
     
-    # 6. Save and print results
-    json.dump({
-        "total_latency_ms": round(sum(timings.values()), 4),
-        "per_stage_ms": timings,
-        "bandwidth_bytes": bytes,
-    }, open(sub_dir/f"results_{test}.json","w"), indent=2)
+    # 0. Prepare running
+    # Get the arguments
+    size, params, seed, num_runs, clrtxt = utils.parse_submission_arguments('Run the add-two-values FHE benchmark.')
+    test = instance_name(size)
+    print(f"\n[harness] Running submission for {test} dataset")
 
-    print("[total latency]", round(sum(timings.values()), 4), "ms\n"
-          "[latency per stage]", timings, "ms\n"
-          "[bandwidth per round]", bytes, "bytes")
+    # Ensure the required directories exist
+    utils.ensure_directories(params.rootdir)
+
+    # Build the submission if not built already
+    utils.build_submission(params.rootdir/"scripts")
+
+    # The harness scripts are in the 'harness' directory,
+    # the executables are in the directory submission/build
+    harness_dir = params.rootdir/"harness"
+    exec_dir = params.rootdir/"submission"/"build"
+
+    # Remove and re-create IO directory
+    io_dir = params.iodir()
+    if io_dir.exists():
+        subprocess.run(["rm", "-rf", str(io_dir)], check=True)
+    io_dir.mkdir(parents=True)
+    utils.log_step(0, "Init", True)
+
+    # 1. Client-side: Generate the datasets
+    cmd = ["python3", harness_dir/"generate_dataset.py", str(size)]
+    # Use seed if provided
+    if seed is not None:
+        rng = np.random.default_rng(seed)
+        gendata_seed = rng.integers(0,0x7fffffff)
+        cmd.extend(["--seed", str(gendata_seed)])
+    subprocess.run(cmd, check=True)
+    utils.log_step(1, "Dataset generation")
+
+    # 2. Client-side: Preprocess the dataset using exec_dir/client_preprocess_dataset
+    subprocess.run([exec_dir/"client_preprocess_dataset", str(size)], check=True)
+    utils.log_step(2, "Dataset preprocessing")
+
+    # 3. Client-side: Generate the cryptographic keys 
+    # Note: this does not use the rng seed above, it lets the implementation
+    #   handle its own prg needs. It means that even if called with the same
+    #   seed multiple times, the keys and ciphertexts will still be different.
+    subprocess.run([exec_dir/"client_key_generation", str(size)], check=True)
+    utils.log_step(3, "Key Generation")
+
+    # 4. Client-side: Encode and encrypt the dataset
+    subprocess.run([exec_dir/"client_encode_encrypt_db", str(size)], check=True)
+    utils.log_step(4, "Dataset encoding and encryption")
+
+    # Report size of keys and encrypted data
+    utils.log_size(io_dir / "public_keys", "Public and evaluation keys")
+    db_size = utils.log_size(io_dir / "ciphertexts_upload", "Encrypted database")
+
+    # 5. Server-side: Preprocess the (encrypted) dataset using exec_dir/server_preprocess_dataset
+    subprocess.run(exec_dir/"server_preprocess_dataset", check=True)
+    utils.log_step(5, "(Encrypted) dataset preprocessing")    
+
+    # Run steps 6-12 multiple times if requested
+    for run in range(num_runs):
+        if num_runs > 1:
+            print(f"\n         [harness] Run {run+1} of {num_runs}")
+
+        # 6. Client-side: Generate a new random query using harness/generate_query.py
+        cmd = ["python3", harness_dir/"generate_query.py", str(size)]
+        if seed is not None:
+            # Use a different seed for each run but derived from the base seed
+            genqry_seed = rng.integers(0,0x7fffffff)
+            cmd.extend(["--seed", str(genqry_seed)])
+        subprocess.run(cmd, check=True)
+        utils.log_step(6, "Query generation")
+
+        # 7. Client-side: Preprocess query using exec_dir/client_preprocess_query
+        subprocess.run([exec_dir/"client_preprocess_query", str(size)], check=True)
+        utils.log_step(7, "Query preprocessing")
+
+        # 8. Client-side: Encrypt the query
+        subprocess.run([exec_dir/"client_encode_encrypt_query", str(size)], check=True)
+        utils.log_step(8, "Query encryption")
+        utils.log_size(io_dir / "ciphertexts_upload", "Encrypted query", 1, db_size)
+
+        # 9. Server side: Run the encrypted processing run exec_dir/server_encrypted_compute
+        subprocess.run([exec_dir/"server_encrypted_compute", str(size)], check=True)
+        utils.log_step(9, "Encrypted computation")
+        utils.log_size(io_dir / "ciphertexts_download", "Encrypted results")
+
+        # 10. Client-side: decrypt
+        subprocess.run([exec_dir/"client_decrypt_decode", str(size)], check=True)
+        utils.log_step(10, "Result decryption")
+
+        # 11. Client-side: post-process
+        subprocess.run([exec_dir/"client_postprocess", str(size)], check=True)
+        utils.log_step(11, "Result postprocessing")
+
+        # 12.1 Run the cleartext computation in cleartext_impl.py
+        # If the cleartext computation takes too long, compute it once for a given state and skip this step.
+        # One can store the results for multiple runs; currently, storing expected.txt works only with num_runs = 1.
+        if clrtxt is None:
+            subprocess.run(["python3", harness_dir/"cleartext_impl.py", str(size)], check=True)
+            print("         [harness] Wrote expected result to: ", params.datadir() / "expected.txt")
+
+        # 12.2 Verify the result
+        expected_file = params.datadir() / "expected.txt"
+        result_file = io_dir / "result.txt"
+
+        if not result_file.exists():
+            print(f"Error: Result file {result_file} not found")
+            sys.exit(1)
+
+        subprocess.run(["python3", harness_dir/"verify_result.py",
+               str(expected_file), str(result_file)], check=False)
+        
+        # 13. Store measurements
+        run_path = params.measuredir() / f"results-{run+1}.json"
+        run_path.parent.mkdir(parents=True, exist_ok=True)
+        utils.save_run(run_path)
+
+    print(f"\nAll steps completed for the {instance_name(size)} dataset!")
+
+if __name__ == "__main__":
+    main()
