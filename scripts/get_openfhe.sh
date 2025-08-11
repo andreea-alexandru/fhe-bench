@@ -20,11 +20,12 @@ FORCE=0
 [[ ${1:-} == "--force" ]] && FORCE=1
 
 # 0) short-circuit if library already installed and not forcing rebuild
-if [[ -d "/usr/local/lib/OpenFHE" && $FORCE -eq 0 ]]; then
-    echo "[get-openfhe] Found OpenFHE installed at /usr/local/lib/ (use --force to rebuild)."
-    exit 0
-fi
-if [[ -f "$INSTALL_DIR/lib/libopenfhe.a" && $FORCE -eq 0 ]]; then
+# Uncomment this if you want to use a system-wide OpenFHE installation
+# if [[ -d "/usr/local/lib/OpenFHE" && $FORCE -eq 0 ]]; then
+#     echo "[get-openfhe] Found OpenFHE installed at /usr/local/lib/ (use --force to rebuild)."
+#     exit 0
+# fi
+if [[ -d "$INSTALL_DIR/lib" && $FORCE -eq 0 ]]; then
     echo "[get-openfhe] Found OpenFHE at $INSTALL_DIR (use --force to rebuild)."
     exit 0
 fi
