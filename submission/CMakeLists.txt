@@ -47,6 +47,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 link_directories( ${OpenFHE_LIBDIR} )
 link_directories( ${OPENMP_LIBRARIES} )
+
+set(CMAKE_INSTALL_RPATH "${OpenFHE_LIBDIR}")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+# If a symbol lookup error occurs, you need to set the LD_LIBRARY_PATH environment to the OpenFHE lib directory.
+
 if(BUILD_STATIC)
     set( CMAKE_EXE_LINKER_FLAGS "${OpenFHE_EXE_LINKER_FLAGS} -static")
     link_libraries( ${OpenFHE_STATIC_LIBRARIES} )
