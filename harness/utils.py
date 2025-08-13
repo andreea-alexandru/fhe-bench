@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2025 HomomorphicEncryption.org
+# All rights reserved.
+#
+# This software is licensed under the terms of the Apache v2 License.
+# See the LICENSE.md file for details.
+
 """
 utils.py - Scaffolding code for running the submission.
 """
@@ -59,8 +66,8 @@ def build_submission(script_dir: Path):
     """
     Build the submission, including pulling dependencies as neeed
     """
-    # Clone and build OpenFHE if needed
-    subprocess.run([script_dir/"get_openfhe.sh"], check=True)
+    # # Uncomment to clone and build OpenFHE as part of the harness if wanted
+    # subprocess.run([script_dir/"get_openfhe.sh"], check=True)
     # CMake build of the submission itself
     subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
 

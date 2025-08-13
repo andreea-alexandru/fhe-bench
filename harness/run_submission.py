@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2025 HomomorphicEncryption.org
+# All rights reserved.
+#
+# This software is licensed under the terms of the Apache v2 License.
+# See the LICENSE.md file for details.
+
 """
 run_submission.py - run the entire submission process, from build to verify
 """
 
-# TODO: Add license and copyright
-
 import subprocess
-import pathlib
 import sys
 import numpy as np
 import utils

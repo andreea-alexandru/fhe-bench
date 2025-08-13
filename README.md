@@ -1,15 +1,46 @@
 # FHE Benchmarking template
 
-## Running the "add two numbers" workload
+## Cloning the workload
 
 ```console
 git clone https://github.com/andreea-alexandru/fhe-bench
 cd fhe-bench
-python3 harness/run_submission.py -h # Provide information about command-line options
 ```
 
-The first time you run `harness/run_submission.py`, it will attempt to pull and build OpenFHE if it is not already installed, and will then build the submission itself. 
-On subsequent calls it will use the same project without re-building it unless the code has changed. An example run is provided below.
+## Dependencies
+
+The harness requires python and some corresponding packages specified in `requirements.txt`. 
+```console
+python3 -m venv venv
+source ./venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+In this template, the library for the encrypted computations is OpenFHE v1.3.1. 
+If other libraries are required, the developer should include the relevant instructions for installing.
+
+This template assumes the correct version of OpenFHE is installed locally at `/third-party/openfhe`. 
+
+### Installing OpenFHE
+
+The installation steps for OpenFHE are described [here](https://openfhe-development.readthedocs.io/en/latest/sphinx_rsts/intro/installation/installation.html).  
+
+If OpenFHE
+is installed at a different location, that location should be specified using the `-CMAKE_PREFIX_PATH` variable in `build_task.sh`.
+(In the case of a system-wide installation at `/usr/local/`, unset the `-CMAKE_PREFIX_PATH` variable.)
+
+For users who want to do a local fresh install, they should run `get_openfhe.sh`, which 
+is designed to install the specified version of OpenFHE at the `third-party` subdirectory in the current directory.
+By default, `build_task` looks for the library at this location. If any symbol lookup errors appear, you need to set the `LD_LIBRARY_PATH` 
+environment variable to the OpenFHE lib directory path. 
+
+```console
+./scripts/get_openfhe.sh
+```
+
+## Running the "add two numbers" workload
+
+An example run is provided below.
 
 ```console
 $ python3 harness/run_submission.py -h
@@ -29,69 +60,64 @@ options:
 $ python3 ./harness/run_submission.py 2 --seed 3 --num_runs 2
 
 [harness] Running submission for medium dataset
-[get-openfhe] Found OpenFHE at /fhe-bench/third_party/openfhe (use --force to rebuild).
+-- The CXX compiler identification is GNU 13.1.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
 -- FOUND PACKAGE OpenFHE
 -- OpenFHE Version: 1.3.1
 -- OpenFHE installed as shared libraries: ON
--- OpenFHE include files location: /fhe-bench/third_party/openfhe/include/openfhe
--- OpenFHE lib files location: /fhe-bench/third_party/openfhe/lib
+-- OpenFHE include files location: /home/aandr/fhe-bench/third_party/openfhe/include/openfhe
+-- OpenFHE lib files location: /home/aandr/fhe-bench/third_party/openfhe/lib
 -- OpenFHE Native Backend size: 64
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /home/aandr/fhe-bench/submission/build
-Consolidate compiler generated dependencies of target server_preprocess_dataset
-Consolidate compiler generated dependencies of target client_preprocess_dataset
-Consolidate compiler generated dependencies of target client_encode_encrypt_db
-Consolidate compiler generated dependencies of target client_decrypt_decode
-Consolidate compiler generated dependencies of target client_key_generation
-Consolidate compiler generated dependencies of target client_preprocess_query
-Consolidate compiler generated dependencies of target client_postprocess
-Consolidate compiler generated dependencies of target server_encrypted_compute
-Consolidate compiler generated dependencies of target client_encode_encrypt_query
-[ 11%] Built target client_preprocess_query
-[ 22%] Built target client_preprocess_dataset
-[ 33%] Built target server_preprocess_dataset
-[ 44%] Built target client_postprocess
-[ 83%] Built target server_encrypted_compute
-[ 83%] Built target client_encode_encrypt_query
-[ 88%] Built target client_decrypt_decode
-[ 88%] Built target client_encode_encrypt_db
-[100%] Built target client_key_generation
-11:57:46 [harness] 1: Dataset generation completed (elapsed: 0.1972s)
-11:57:46 [harness] 2: Dataset preprocessing completed (elapsed: 0.0724s)
-11:57:46 [harness] 3: Key Generation completed (elapsed: 0.1457s)
-11:57:47 [harness] 4: Dataset encoding and encryption completed (elapsed: 0.095s)
+[  5%] Building CXX object CMakeFiles/client_postprocess.dir/src/client_postprocess.cpp.o
+[...]
+[100%] Built target client_decrypt_decode
+15:58:45 [harness] 1: Dataset generation completed (elapsed: 0.4333s)
+15:58:45 [harness] 2: Dataset preprocessing completed (elapsed: 0.1514s)
+15:58:45 [harness] 3: Key Generation completed (elapsed: 0.2111s)
+15:58:45 [harness] 4: Dataset encoding and encryption completed (elapsed: 0.1522s)
          [harness] Public and evaluation keys size: 517.8K
          [harness] Encrypted database size: 261.2K
-11:57:47 [harness] 5: (Encrypted) dataset preprocessing completed (elapsed: 0.0992s)
+15:58:46 [harness] 5: (Encrypted) dataset preprocessing completed (elapsed: 0.3696s)
 
          [harness] Run 1 of 2
-11:57:47 [harness] 6: Query generation completed (elapsed: 0.2374s)
-11:57:47 [harness] 7: Query preprocessing completed (elapsed: 0.0775s)
-11:57:47 [harness] 8: Query encryption completed (elapsed: 0.1373s)
+15:58:46 [harness] 6: Query generation completed (elapsed: 0.3635s)
+15:58:46 [harness] 7: Query preprocessing completed (elapsed: 0.017s)
+15:58:46 [harness] 8: Query encryption completed (elapsed: 0.0955s)
          [harness] Encrypted query size: 257.2K
-11:57:47 [harness] 9: Encrypted computation completed (elapsed: 0.2029s)
+15:58:46 [harness] 9: Encrypted computation completed (elapsed: 0.0979s)
          [harness] Encrypted results size: 261.2K
-11:57:48 [harness] 10: Result decryption completed (elapsed: 0.2985s)
-11:57:48 [harness] 11: Result postprocessing completed (elapsed: 0.0733s)
+15:58:47 [harness] 10: Result decryption completed (elapsed: 0.2023s)
+15:58:47 [harness] 11: Result postprocessing completed (elapsed: 0.1582s)
          [harness] Wrote expected result to:  /home/aandr/fhe-bench/datasets/medium/expected.txt
-[harness] PASS  (expected=13.89, got=13.89000000004191)
-[total latency] 1.6365s
+[harness] PASS  (expected=13.89, got=13.889999999042985)
+[total latency] 2.252s
 
          [harness] Run 2 of 2
-11:57:48 [harness] 6: Query generation completed (elapsed: 0.4096s)
-11:57:48 [harness] 7: Query preprocessing completed (elapsed: 0.1008s)
-11:57:48 [harness] 8: Query encryption completed (elapsed: 0.0945s)
+15:58:47 [harness] 6: Query generation completed (elapsed: 0.7585s)
+15:58:48 [harness] 7: Query preprocessing completed (elapsed: 0.071s)
+15:58:48 [harness] 8: Query encryption completed (elapsed: 0.0339s)
          [harness] Encrypted query size: 257.2K
-11:57:48 [harness] 9: Encrypted computation completed (elapsed: 0.1784s)
+15:58:48 [harness] 9: Encrypted computation completed (elapsed: 0.121s)
          [harness] Encrypted results size: 261.2K
-11:57:49 [harness] 10: Result decryption completed (elapsed: 0.2142s)
-11:57:49 [harness] 11: Result postprocessing completed (elapsed: 0.056s)
+15:58:48 [harness] 10: Result decryption completed (elapsed: 0.1141s)
+15:58:48 [harness] 11: Result postprocessing completed (elapsed: 0.1326s)
          [harness] Wrote expected result to:  /home/aandr/fhe-bench/datasets/medium/expected.txt
-[harness] PASS  (expected=123.58, got=123.57999999984575)
-[total latency] 1.6631s
+[harness] PASS  (expected=123.58, got=123.58000000003665)
+[total latency] 2.5488s
 
 All steps completed for the medium dataset!
+```
+
+After finishing the run, deactivate the virtual environment.
+```console
+deactivate
 ```
 
 ## Directory structure
@@ -159,11 +185,3 @@ The outer python script measures the runtime of each stage.
 The current stage separation structure requires reading and writing to files more times than minimally necessary.
 For a more granular runtime measuring, which would account for the extra overhead described above, we encourage
 submitters to separate and print in a log the individual times for reads/writes and computations inside each stage. 
-
-## Building OpenFHE
-The `get_openfhe` script is designed to install the specified version of OpenFHE at a third-party subdirectory in the current directory,
-and `build_task` looks for the library at this location. If any symbol lookup errors appear, you need to set the `LD_LIBRARY_PATH` 
-environment variable to the OpenFHE lib directory path.
-
-If you prefer to use a system-wide OpenFHE installation (located by default at `/usr/local`), you can uncomment out lines 23--27 in 
-`get_openfhe.sh` and unset the `-DCMAKE_PREFIX_PATH` variable in `build_task.sh`.

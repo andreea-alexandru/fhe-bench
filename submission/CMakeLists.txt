@@ -13,7 +13,7 @@ option( BUILD_STATIC "Set to ON to include static versions of the library" OFF)
 # 2.  Find the OpenFHE *package* that the install script put into
 #     third_party/openfhe
 # --------------------------------------------------------------------
-#   scripts/get-openfhe.sh installs:
+#   scripts/get_openfhe.sh installs:
 #     third_party/openfhe/lib/cmake/OpenFHE/OpenFHEConfig.cmake
 
 find_package(OpenFHE CONFIG REQUIRED)
@@ -29,7 +29,6 @@ else()
 endif ()
 
 set( CMAKE_CXX_FLAGS "${OpenFHE_CXX_FLAGS} -Werror")
-
 
 # --------------------------------------------------------------------
 # 3.  Link libraries
@@ -47,10 +46,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 link_directories( ${OpenFHE_LIBDIR} )
 link_directories( ${OPENMP_LIBRARIES} )
-
-set(CMAKE_INSTALL_RPATH "${OpenFHE_LIBDIR}")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-# If a symbol lookup error occurs, you need to set the LD_LIBRARY_PATH environment to the OpenFHE lib directory.
 
 if(BUILD_STATIC)
     set( CMAKE_EXE_LINKER_FLAGS "${OpenFHE_EXE_LINKER_FLAGS} -static")

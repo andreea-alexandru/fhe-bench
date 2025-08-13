@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2025 HomomorphicEncryption.org
+# All rights reserved.
+#
+# This software is licensed under the terms of the Apache v2 License.
+# See the LICENSE.md file for details.
+#============================================================================
+
 """
 Cleartext reference for the “add” workload.
 For each test case:
-    - Reads the dataset
+    - Reads the dataset and the query
     - Computes the sum between the two 
-    - Writes the result to expected_XXX.txt for each test case (# datasets/expected.txt)
+    - Writes the result to expected.txt for each test case (# datasets/xxx/expected.txt)
 """
 import random
 from pathlib import Path
