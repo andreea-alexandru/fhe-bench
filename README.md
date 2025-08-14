@@ -11,8 +11,8 @@ cd fhe-bench
 
 The harness requires python and some corresponding packages specified in `requirements.txt`. 
 ```console
-python3 -m venv venv
-source ./venv/bin/activate
+python3 -m venv virtualenv
+source ./virtualenv/bin/activate
 pip3 install -r requirements.txt
 ```
 
@@ -31,8 +31,8 @@ is installed at a different location, that location should be specified using th
 
 For users who want to do a local fresh install, they should run `get_openfhe.sh`, which 
 is designed to install the specified version of OpenFHE at the `third-party` subdirectory in the current directory.
-By default, `build_task` looks for the library at this location. If any symbol lookup errors appear, you need to set the `LD_LIBRARY_PATH` 
-environment variable to the OpenFHE lib directory path. 
+By default, `build_task.sh` looks for the library at this location. See more instructions in `submission/CMakeLists.txt` if 
+`build_task.sh` does not succeed.
 
 ```console
 ./scripts/get_openfhe.sh

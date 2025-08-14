@@ -47,6 +47,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 link_directories( ${OpenFHE_LIBDIR} )
 link_directories( ${OPENMP_LIBRARIES} )
 
+# set(CMAKE_SKIP_BUILD_RPATH FALSE)
+# set(CMAKE_BUILD_WITH_INSTALL_RPATH OFF)
+# set(CMAKE_BUILD_RPATH "${OpenFHE_LIBDIR}") 
+# set(CMAKE_INSTALL_RPATH "${OpenFHE_LIBDIR}") 
+# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+add_link_options(-Wl,--no-as-needed)
+
+# These should take care of setting the correct LD path without manually setting LD_LIBRARY_PATH. 
+# But if a shared library or symbol lookup error occurs, you need to set the LD_LIBRARY_PATH environment 
+# to the OpenFHE lib directory: export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/path/to/OpenFHE/lib
+
 if(BUILD_STATIC)
     set( CMAKE_EXE_LINKER_FLAGS "${OpenFHE_EXE_LINKER_FLAGS} -static")
     link_libraries( ${OpenFHE_STATIC_LIBRARIES} )
