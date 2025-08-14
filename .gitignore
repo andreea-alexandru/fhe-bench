@@ -50,3 +50,4 @@ virtualenv
 datasets/*
 # But keep the folder alive with this one file, since some submissions might have fixed datasets
 !datasets/.gitkeep
+!scripts

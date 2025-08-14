@@ -4,6 +4,7 @@
 
 ```console
 git clone https://github.com/andreea-alexandru/fhe-bench
+git checkout empty-harness
 cd fhe-bench
 ```
 
@@ -16,29 +17,9 @@ source ./virtualenv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-In this template, the library for the encrypted computations is OpenFHE v1.3.1. 
-If other libraries are required, the developer should include the relevant instructions for installing.
+In this empty harness, no other dependency is needed.
 
-This template assumes the correct version of OpenFHE is installed locally at `/third-party/openfhe`. 
-
-### Installing OpenFHE
-
-The installation steps for OpenFHE are described [here](https://openfhe-development.readthedocs.io/en/latest/sphinx_rsts/intro/installation/installation.html).  
-
-If OpenFHE
-is installed at a different location, that location should be specified using the `-CMAKE_PREFIX_PATH` variable in `build_task.sh`.
-(In the case of a system-wide installation at `/usr/local/`, unset the `-CMAKE_PREFIX_PATH` variable.)
-
-For users who want to do a local fresh install, they should run `get_openfhe.sh`, which 
-is designed to install the specified version of OpenFHE at the `third-party` subdirectory in the current directory.
-By default, `build_task.sh` looks for the library at this location. See more instructions in `submission/CMakeLists.txt` if 
-`build_task.sh` does not succeed.
-
-```console
-./scripts/get_openfhe.sh
-```
-
-## Running the "add two numbers" workload
+## Running the empty workload
 
 An example run is provided below.
 

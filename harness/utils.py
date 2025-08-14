@@ -64,12 +64,8 @@ def ensure_directories(rootdir: Path):
 
 def build_submission(script_dir: Path):
     """
-    Build the submission, including pulling dependencies as neeed
+    Build the submission
     """
-    # # Uncomment to clone and build OpenFHE as part of the harness if wanted
-    # subprocess.run([script_dir/"get_openfhe.sh"], check=True)
-    # CMake build of the submission itself
-    subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
 
 def log_step(step_num: int, step_name: str, start: bool = False):
     """ 
@@ -99,10 +95,14 @@ def log_step(step_num: int, step_name: str, start: bool = False):
 
 def log_size(path: Path, object_name: str, flag: bool = False, previous: int = 0):
     global _bandwidth
-    size = int(subprocess.run(["du", "-sb", path], check=True,
+
+    if not path.exists():
+        size = 0
+    else:
+        size = int(subprocess.run(["du", "-sb", path], check=True,
                            capture_output=True, text=True).stdout.split()[0])
-    if(flag):
-        size -= previous
+        if(flag):
+            size -= previous
     
     print("         [harness]", object_name, "size:", human_readable_size(size))
 
