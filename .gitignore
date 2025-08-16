@@ -41,7 +41,7 @@ harness/__pycache__/
 # Directories
 .DS_Store
 .idea/
-.vscode
+.vscode/
 
 # Virtual environments
 virtualenv
