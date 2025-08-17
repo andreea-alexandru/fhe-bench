@@ -1,4 +1,5 @@
-# FHE Benchmarking template
+# FHE Benchmarking template for a sample workload
+This is a submission example for a simple workload of adding two encrypted numbers using OpenFHE.
 
 ## Cloning the workload
 
@@ -72,45 +73,45 @@ $ python3 ./harness/run_submission.py 2 --seed 3 --num_runs 2
 -- OpenFHE include files location: /home/aandr/fhe-bench/third_party/openfhe/include/openfhe
 -- OpenFHE lib files location: /home/aandr/fhe-bench/third_party/openfhe/lib
 -- OpenFHE Native Backend size: 64
+-- Build with shared libs: OPENFHEcore;OPENFHEpke;OPENFHEbinfhe;-fopenmp
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /home/aandr/fhe-bench/submission/build
-[  5%] Building CXX object CMakeFiles/client_postprocess.dir/src/client_postprocess.cpp.o
+[  5%] Building CXX object CMakeFiles/client_preprocess_query.dir/src/client_preprocess_query.cpp.o
 [...]
-[100%] Built target client_decrypt_decode
-15:58:45 [harness] 1: Dataset generation completed (elapsed: 0.4333s)
-15:58:45 [harness] 2: Dataset preprocessing completed (elapsed: 0.1514s)
-15:58:45 [harness] 3: Key Generation completed (elapsed: 0.2111s)
-15:58:45 [harness] 4: Dataset encoding and encryption completed (elapsed: 0.1522s)
+18:11:15 [harness] 1: Dataset generation completed (elapsed: 0.1834s)
+18:11:15 [harness] 2: Dataset preprocessing completed (elapsed: 0.0191s)
+18:11:15 [harness] 3: Key Generation completed (elapsed: 0.0613s)
+18:11:15 [harness] 4: Dataset encoding and encryption completed (elapsed: 0.1049s)
          [harness] Public and evaluation keys size: 517.8K
          [harness] Encrypted database size: 261.2K
-15:58:46 [harness] 5: (Encrypted) dataset preprocessing completed (elapsed: 0.3696s)
+18:11:15 [harness] 5: (Encrypted) dataset preprocessing completed (elapsed: 0.2698s)
 
          [harness] Run 1 of 2
-15:58:46 [harness] 6: Query generation completed (elapsed: 0.3635s)
-15:58:46 [harness] 7: Query preprocessing completed (elapsed: 0.017s)
-15:58:46 [harness] 8: Query encryption completed (elapsed: 0.0955s)
+18:11:16 [harness] 6: Query generation completed (elapsed: 0.2549s)
+18:11:16 [harness] 7: Query preprocessing completed (elapsed: 0.0911s)
+18:11:16 [harness] 8: Query encryption completed (elapsed: 0.0808s)
          [harness] Encrypted query size: 257.2K
-15:58:46 [harness] 9: Encrypted computation completed (elapsed: 0.0979s)
+18:11:16 [harness] 9: Encrypted computation completed (elapsed: 0.1449s)
          [harness] Encrypted results size: 261.2K
-15:58:47 [harness] 10: Result decryption completed (elapsed: 0.2023s)
-15:58:47 [harness] 11: Result postprocessing completed (elapsed: 0.1582s)
+18:11:16 [harness] 10: Result decryption completed (elapsed: 0.0679s)
+18:11:16 [harness] 11: Result postprocessing completed (elapsed: 0.0632s)
          [harness] Wrote expected result to:  /home/aandr/fhe-bench/datasets/medium/expected.txt
-[harness] PASS  (expected=13.89, got=13.889999999042985)
-[total latency] 2.252s
+[harness] PASS  (expected=13.89, got=13.889999999829456)
+[total latency] 1.3412s
 
          [harness] Run 2 of 2
-15:58:47 [harness] 6: Query generation completed (elapsed: 0.7585s)
-15:58:48 [harness] 7: Query preprocessing completed (elapsed: 0.071s)
-15:58:48 [harness] 8: Query encryption completed (elapsed: 0.0339s)
+18:11:16 [harness] 6: Query generation completed (elapsed: 0.3826s)
+18:11:16 [harness] 7: Query preprocessing completed (elapsed: 0.0191s)
+18:11:16 [harness] 8: Query encryption completed (elapsed: 0.0647s)
          [harness] Encrypted query size: 257.2K
-15:58:48 [harness] 9: Encrypted computation completed (elapsed: 0.121s)
+18:11:17 [harness] 9: Encrypted computation completed (elapsed: 0.1733s)
          [harness] Encrypted results size: 261.2K
-15:58:48 [harness] 10: Result decryption completed (elapsed: 0.1141s)
-15:58:48 [harness] 11: Result postprocessing completed (elapsed: 0.1326s)
+18:11:17 [harness] 10: Result decryption completed (elapsed: 0.185s)
+18:11:17 [harness] 11: Result postprocessing completed (elapsed: 0.0862s)
          [harness] Wrote expected result to:  /home/aandr/fhe-bench/datasets/medium/expected.txt
-[harness] PASS  (expected=123.58, got=123.58000000003665)
-[total latency] 2.5488s
+[harness] PASS  (expected=123.58, got=123.57999999923669)
+[total latency] 1.5494s
 
 All steps completed for the medium dataset!
 ```
